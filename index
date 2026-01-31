@@ -366,6 +366,7 @@ const dialogueSource = [
         height = window.innerHeight;
         bgCanvas.width = width * dpr;
         bgCanvas.height = height * dpr;
+        bgctx.setTransform(1, 0, 0, 1, 0, 0);
         bgctx.scale(dpr, dpr);
         drawRokkakuBG();
     }
