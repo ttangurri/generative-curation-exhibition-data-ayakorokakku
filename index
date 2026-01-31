@@ -192,9 +192,14 @@
     <canvas id="background-canvas"></canvas>
 
     <div id="subject-container">
-        <img id="img-woman" class="subject-image" src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1200&auto=format&fit=crop" alt="WOMAN Persona">
-        <img id="img-girl" class="subject-image" src="https://images.unsplash.com/photo-1508186225823-0963cf9ab0de?q=80&w=1200&auto=format&fit=crop" alt="Rokkaku Style Girl">
-    </div>
+  <img class="subject-image morph" src="https://...1" alt="">
+  <img class="subject-image morph" src="https://...2" alt="">
+  <img class="subject-image morph" src="https://...3" alt="">
+  <img class="subject-image morph" src="https://...4" alt="">
+  <img class="subject-image morph" src="https://...5" alt="">
+  <img class="subject-image morph" src="https://...6" alt="">
+</div>
+   
 
     <div id="glass-layer"></div>
     <div id="texture-overlay"></div>
@@ -362,15 +367,16 @@ const dialogueSource = [
         bgCanvas.height = height * dpr;
         bgctx.setTransform(1, 0, 0, 1, 0, 0);
         bgctx.scale(dpr, dpr);
-        drawRokkakuBG();
     }
 
     // 아야코 록카쿠 스타일의 배경 생성기 (파스텔 강화)
     function drawRokkakuBG() {
-        bgctx.fillStyle = '#e5d1b8'; 
-        bgctx.fillRect(0, 0, width, height);
-        
-        const colors = ['#ff85b3', '#fff4a3', '#a3f0ff', '#c2ff85', '#ffffff', '#ffab85'];
+  bgctx.fillStyle = '#e5d1b8';
+  bgctx.fillRect(0, 0, width, height);
+
+  const colors = ['#ff85b3', '#fff4a3', '#a3f0ff', '#c2ff85', '#ffffff', '#ffab85'];
+
+ 
         
         // 거친 파스텔 구름
         for(let i=0; i<50; i++) {
@@ -399,6 +405,14 @@ const dialogueSource = [
         }
     }
 
+function drawBreathingPlane(ctx, t) {
+  const breath = (Math.sin(t * 0.001) + 1) / 2; // 0~1
+  ctx.save();
+  ctx.globalAlpha = 0.08 + breath * 0.12;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, width, height);
+  ctx.restore();
+}
     function drawRokkakuEye(ctx, x, y, size) {
         ctx.save();
         ctx.translate(x, y);
@@ -432,21 +446,6 @@ const dialogueSource = [
     }
 
     window.addEventListener('resize', resize);
-
-    // 모핑 사이클
-    setInterval(() => {
-        const womanImg = document.getElementById('img-woman');
-        const girlImg = document.getElementById('img-girl');
-        const currentWomanOp = parseFloat(getComputedStyle(womanImg).opacity);
-        womanImg.style.opacity = currentWomanOp === 1 ? 0 : 1;
-        girlImg.style.opacity = currentWomanOp === 1 ? 1 : 0;
-    }, 12000);
-
-    function loop() {
-        // 배경의 미세한 맥동 효과 (재그리기 방지 및 최적화)
-        if(Math.random() > 0.998) drawRokkakuBG();
-        requestAnimationFrame(loop);
-    }
 
     window.onload = () => { resize(); populateCredits(); loop(); };
 </script>
