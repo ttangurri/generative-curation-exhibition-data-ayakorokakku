@@ -443,8 +443,8 @@ const dialogueSource = [
         const womanImg = document.getElementById('img-woman');
         const girlImg = document.getElementById('img-girl');
         const currentWomanOp = parseFloat(getComputedStyle(womanImg).opacity);
-        womanImg.style.opacity = currentWOMANOp === 1 ? 0 : 1;
-        girlImg.style.opacity = currentWOMANOp === 1 ? 1 : 0;
+        womanImg.style.opacity = currentWomanOp === 1 ? 0 : 1;
+        girlImg.style.opacity = currentWomanOp === 1 ? 1 : 0;
     }, 12000);
 
     function loop() {
