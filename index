@@ -309,14 +309,6 @@
             bgctx.restore();
         }
 
-        // 록카쿠 눈 (약간 흐릿하게 배경에 녹아들게)
-        for(let k=0; k<12; k++) {
-            const ex = Math.random() * width;
-            const ey = Math.random() * height;
-            const esize = 30 + Math.random() * 50;
-            drawRokkakuEye(bgctx, ex, ey, esize);
-        }
-
         // 튀긴 물감 효과
         for(let m=0; m<300; m++) {
             bgctx.globalAlpha = 0.3;
