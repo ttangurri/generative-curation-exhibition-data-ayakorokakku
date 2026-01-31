@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass Kiss: Pastel Cloud Homage</title>
+    <style>
+        :root {
+            --bg-cardboard: #e5d1b8;
+            --idol-neon: #bc13fe;
+            --rokkaku-pink: #ff007f;
+            --rokkaku-yellow: #ffeb3b;
+            --rokkaku-cyan: #00e5ff;
+            --cloud-white: rgba(255, 255, 255, 0.95);
+            --cloud-pink: rgba(255, 209, 220, 0.95);
+            --cloud-blue: rgba(209, 240, 255, 0.95);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-cardboard);
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            color: #222;
+        }
+
+        #exhibition-stage {
+            position: relative;
+            width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-cardboard);
+        }
+
+        #background-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+
+        #subject-container {
+            position: absolute;
+            width: 75vh; height: 75vh;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .subject-image {
+            position: absolute;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            filter: contrast(110%) saturate(1.2);
+            transition: opacity 5s ease-in-out;
+            mask-image: radial-gradient(circle, black 40%, transparent 90%);
+            -webkit-mask-image: radial-gradient(circle, black 40%, transparent 90%);
+        }
+
+        #img-woman { opacity: 1; }
+        #img-girl { opacity: 0; filter: contrast(130%) brightness(1.1); }
+
+        /* 유리 장막 및 질감 */
+        #glass-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 15;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 40%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(1px);
+        }
+
+        #texture-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 17;
+            opacity: 0.35;
+            background-image: url('https://www.transparenttextures.com/patterns/cardboard.png');
+        }
+
+        /* 대화 크레딧 레이어 */
+        #credits-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 25;
+            mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+        }
+
+        #credits-scroller {
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 180px;
+            animation: scroll-slow 200s linear infinite; 
+        }
+
+        .dialogue-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 4%;
+        }
+
+        /* IDOL (Mature): 완전 우측 정렬 */
+        .group-woman { align-items: flex-end; }
+        .group-woman .persona-tag { 
+            color: var(--idol-neon); 
+            font-size: 11px; 
+            letter-spacing: 5px; 
+            font-weight: 800; 
+            margin-bottom: 5px;
+            margin-right: 20px;
+        }
+
+        /* 뭉게뭉게 구름 말풍선 (IDOL) */
+        .group-woman .line-box { 
+            background: var(--cloud-blue);
+            backdrop-filter: blur(8px);
+            text-align: right; 
+            padding: 25px 40px;
+            max-width: 480px; /* 크기 축소 */
+            border-radius: 50px 50px 5px 50px;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.05),
+                15px -15px 0 -5px var(--cloud-blue),
+                -15px -10px 0 -8px var(--cloud-blue);
+            position: relative;
+        }
+
+        /* GIRL (Rokkaku): 완전 좌측 정렬 */
+        .group-girl { align-items: flex-start; }
+        .group-girl .persona-tag { 
+            color: var(--rokkaku-pink); 
+            font-size: 11px; 
+            letter-spacing: 5px; 
+            font-weight: 800; 
+            margin-bottom: 5px;
+            margin-left: 20px;
+        }
+
+        /* 뭉게뭉게 구름 말풍선 (GIRL) */
+        .group-girl .line-box { 
+            background: var(--cloud-pink);
+            backdrop-filter: blur(8px);
+            text-align: left; 
+            padding: 25px 40px;
+            max-width: 480px; /* 크기 축소 */
+            border-radius: 50px 50px 50px 5px;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.05),
+                -15px -15px 0 -5px var(--cloud-pink),
+                15px -10px 0 -8px var(--cloud-pink);
+            position: relative;
+        }
+
+        .lang-parallel { display: flex; flex-direction: column; gap: 6px; }
+        .lang-ko { font-size: 24px; font-weight: 900; color: #333; line-height: 1.1; }
+        .lang-en { font-size: 13px; color: #555; font-weight: 600; }
+        .lang-de { font-size: 12px; color: #777; font-style: italic; }
+        .lang-ja { font-size: 13px; color: #666; font-family: 'Noto Sans JP', sans-serif; }
+
+        @keyframes scroll-slow {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-70000px); } 
+        }
+
+        #ui-panel {
+            position: absolute;
+            bottom: 30px; left: 30px;
+            z-index: 40;
+            padding: 20px;
+            background: rgba(229, 209, 184, 0.7);
+            font-family: monospace;
+            color: #444;
+            font-size: 12px;
+            pointer-events: none;
+            line-height: 1.6;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        #ui-panel span { color: var(--rokkaku-pink); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="exhibition-stage">
+    <canvas id="background-canvas"></canvas>
+
+    <div id="subject-container">
+        <img id="img-woman" class="subject-image" src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1200&auto=format&fit=crop" alt="Idol Persona">
+        <img id="img-girl" class="subject-image" src="https://images.unsplash.com/photo-1508186225823-0963cf9ab0de?q=80&w=1200&auto=format&fit=crop" alt="Rokkaku Style Girl">
+    </div>
+
+    <div id="glass-layer"></div>
+    <div id="texture-overlay"></div>
+    
+    <div id="credits-container">
+        <div id="credits-scroller"></div>
+    </div>
+
+    <div id="ui-panel">
+        [STATION: ROKKAKU_PASTEL_CLOUDS]<br>
+        [INTERACTION: STATIC_OBSERVATION]<br>
+        [AESTHETIC: <span>PASTEL</span>_PUFFY_BUBBLES]
+    </div>
+</div>
+
+<script>
+    const dialogueSource = [
+        {
+            woman: { 
+                ko: "시스템이 정의한 아름다움 속에 머물러.", 
+                en: "Stay within the beauty defined by the system.", 
+                de: "Bleiben Sie in der Schönheit des Systems.", 
+                ja: "システムが定義した美しさの中に留まれ。" 
+            },
+            girl: { 
+                ko: "나는 내 손가락이 닿는 곳마다 우주를 그릴 거야.", 
+                en: "I will draw a universe wherever my fingers touch.", 
+                de: "Ich zeichne ein Universum, wo ich berühre.", 
+                ja: "私は指が触れる場所すべてに宇宙を描く。" 
+            }
+        },
+        {
+            woman: { 
+                ko: "모든 입맞춤은 매뉴얼대로 이루어지지.", 
+                en: "Every kiss is performed according to the manual.", 
+                de: "Jeder Kuss folgt dem Handbuch.", 
+                ja: "すべての口づけはマニュアル通りに行われる。" 
+            },
+            girl: { 
+                ko: "차가운 유리창에 뜨거운 숨결을 문질러봐.", 
+                en: "Rub your warm breath against the cold glass.", 
+                de: "Reibe deinen warmen Atem am kalten Glas.", 
+                ja: "冷たいガラス에 열이 있는 숨결을 비벼봐。" 
+            }
+        },
+        {
+            woman: { 
+                ko: "완벽한 비율, 그것이 나의 권력이야.", 
+                en: "Perfect proportions, that is my power.", 
+                de: "Perfekte Proportionen sind meine Macht.", 
+                ja: "完璧な比率、それが私の権力だ。" 
+            },
+            girl: { 
+                ko: "비뚤어진 눈동자가 더 많은 진실을 보고 있어.", 
+                en: "Crooked eyes are seeing more truth.", 
+                de: "Schiefe Augen sehen mehr Wahrheit.", 
+                ja: "歪んだ瞳の方が、より多くの真실을 보고 있어。" 
+            }
+        }
+    ];
+
+    const finalDialogues = [];
+    for(let i=0; i<100; i++) {
+        const base = dialogueSource[i % dialogueSource.length];
+        finalDialogues.push({ who: "IDOL", data: base.woman });
+        finalDialogues.push({ who: "GIRL", data: base.girl });
+    }
+
+    const bgCanvas = document.getElementById('background-canvas');
+    const bgctx = bgCanvas.getContext('2d');
+    const scroller = document.getElementById('credits-scroller');
+
+    let width, height, dpr;
+
+    function resize() {
+        dpr = window.devicePixelRatio || 1;
+        width = window.innerWidth;
+        height = window.innerHeight;
+        bgCanvas.width = width * dpr;
+        bgCanvas.height = height * dpr;
+        bgctx.scale(dpr, dpr);
+        drawRokkakuBG();
+    }
+
+    // 아야코 록카쿠 스타일의 배경 생성기 (파스텔 강화)
+    function drawRokkakuBG() {
+        bgctx.fillStyle = '#e5d1b8'; 
+        bgctx.fillRect(0, 0, width, height);
+        
+        const colors = ['#ff85b3', '#fff4a3', '#a3f0ff', '#c2ff85', '#ffffff', '#ffab85'];
+        
+        // 거친 파스텔 구름
+        for(let i=0; i<50; i++) {
+            const x = Math.random() * width;
+            const y = Math.random() * height;
+            const radius = 50 + Math.random() * 200;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            bgctx.save();
+            bgctx.globalAlpha = 0.15;
+            bgctx.fillStyle = color;
+            bgctx.beginPath();
+            for(let j=0; j<8; j++) {
+                bgctx.arc(x + (Math.random()-0.5)*130, y + (Math.random()-0.5)*130, radius * (0.3+Math.random()), 0, Math.PI*2);
+            }
+            bgctx.fill();
+            bgctx.restore();
+        }
+
+        // 록카쿠 눈 (약간 흐릿하게 배경에 녹아들게)
+        for(let k=0; k<12; k++) {
+            const ex = Math.random() * width;
+            const ey = Math.random() * height;
+            const esize = 30 + Math.random() * 50;
+            drawRokkakuEye(bgctx, ex, ey, esize);
+        }
+
+        // 튀긴 물감 효과
+        for(let m=0; m<300; m++) {
+            bgctx.globalAlpha = 0.3;
+            bgctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+            bgctx.beginPath();
+            bgctx.arc(Math.random() * width, Math.random() * height, Math.random() * 4, 0, Math.PI * 2);
+            bgctx.fill();
+        }
+    }
+
+    function drawRokkakuEye(ctx, x, y, size) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate((Math.random() - 0.5) * 0.4);
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.ellipse(0, 0, size, size * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.lineWidth = 1.5; ctx.strokeStyle = '#333'; ctx.stroke();
+        ctx.fillStyle = '#222';
+        ctx.beginPath(); ctx.arc(size * 0.2, -size * 0.1, size * 0.35, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    function populateCredits() {
+        finalDialogues.forEach(d => {
+            const group = document.createElement('div');
+            group.className = `dialogue-group group-${d.who.toLowerCase() === 'idol' ? 'woman' : 'girl'}`;
+            group.innerHTML = `
+                <div class="persona-tag">${d.who === 'IDOL' ? 'SYSTEM : IDOL' : 'INSTINCT : GIRL'}</div>
+                <div class="line-box">
+                    <div class="lang-parallel">
+                        <div class="lang-ko">${d.data.ko}</div>
+                        <div class="lang-en">${d.data.en}</div>
+                        <div class="lang-de">${d.data.de}</div>
+                        <div class="lang-ja">${d.data.ja}</div>
+                    </div>
+                </div>
+            `;
+            scroller.appendChild(group);
+        });
+    }
+
+    window.addEventListener('resize', resize);
+
+    // 모핑 사이클
+    setInterval(() => {
+        const idolImg = document.getElementById('img-woman');
+        const girlImg = document.getElementById('img-girl');
+        const currentIdolOp = parseFloat(getComputedStyle(idolImg).opacity);
+        idolImg.style.opacity = currentIdolOp === 1 ? 0 : 1;
+        girlImg.style.opacity = currentIdolOp === 1 ? 1 : 0;
+    }, 12000);
+
+    function loop() {
+        // 배경의 미세한 맥동 효과 (재그리기 방지 및 최적화)
+        if(Math.random() > 0.998) drawRokkakuBG();
+        requestAnimationFrame(loop);
+    }
+
+    window.onload = () => { resize(); populateCredits(); loop(); };
+</script>
+</body>
+</html>
