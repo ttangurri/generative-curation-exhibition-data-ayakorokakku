@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg-cardboard: #e5d1b8;
-            --idol-neon: #bc13fe;
+            --pastel-neon: #bc13fe;
             --rokkaku-pink: #ff007f;
             --rokkaku-yellow: #ffeb3b;
             --rokkaku-cyan: #00e5ff;
@@ -111,10 +111,10 @@
             padding: 0 4%;
         }
 
-        /* IDOL (Mature): 완전 우측 정렬 */
+        /* WOMAN (Mature): 완전 우측 정렬 */
         .group-woman { align-items: flex-end; }
         .group-woman .persona-tag { 
-            color: var(--idol-neon); 
+            color: var(--pastel-neon); 
             font-size: 11px; 
             letter-spacing: 5px; 
             font-weight: 800; 
@@ -122,7 +122,7 @@
             margin-right: 20px;
         }
 
-        /* 뭉게뭉게 구름 말풍선 (IDOL) */
+        /* 뭉게뭉게 구름 말풍선 (WOMAN) */
         .group-woman .line-box { 
             background: var(--cloud-blue);
             backdrop-filter: blur(8px);
@@ -198,7 +198,7 @@
     <canvas id="background-canvas"></canvas>
 
     <div id="subject-container">
-        <img id="img-woman" class="subject-image" src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1200&auto=format&fit=crop" alt="Idol Persona">
+        <img id="img-woman" class="subject-image" src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1200&auto=format&fit=crop" alt="WOMAN Persona">
         <img id="img-girl" class="subject-image" src="https://images.unsplash.com/photo-1508186225823-0963cf9ab0de?q=80&w=1200&auto=format&fit=crop" alt="Rokkaku Style Girl">
     </div>
 
@@ -217,55 +217,140 @@
 </div>
 
 <script>
-    const dialogueSource = [
-        {
-            woman: { 
-                ko: "시스템이 정의한 아름다움 속에 머물러.", 
-                en: "Stay within the beauty defined by the system.", 
-                de: "Bleiben Sie in der Schönheit des Systems.", 
-                ja: "システムが定義した美しさの中に留まれ。" 
-            },
-            girl: { 
-                ko: "나는 내 손가락이 닿는 곳마다 우주를 그릴 거야.", 
-                en: "I will draw a universe wherever my fingers touch.", 
-                de: "Ich zeichne ein Universum, wo ich berühre.", 
-                ja: "私は指が触れる場所すべてに宇宙を描く。" 
-            }
-        },
-        {
-            woman: { 
-                ko: "모든 입맞춤은 매뉴얼대로 이루어지지.", 
-                en: "Every kiss is performed according to the manual.", 
-                de: "Jeder Kuss folgt dem Handbuch.", 
-                ja: "すべての口づけはマニュアル通りに行われる。" 
-            },
-            girl: { 
-                ko: "차가운 유리창에 뜨거운 숨결을 문질러봐.", 
-                en: "Rub your warm breath against the cold glass.", 
-                de: "Reibe deinen warmen Atem am kalten Glas.", 
-                ja: "冷たいガラス에 열이 있는 숨결을 비벼봐。" 
-            }
-        },
-        {
-            woman: { 
-                ko: "완벽한 비율, 그것이 나의 권력이야.", 
-                en: "Perfect proportions, that is my power.", 
-                de: "Perfekte Proportionen sind meine Macht.", 
-                ja: "完璧な比率、それが私の権力だ。" 
-            },
-            girl: { 
-                ko: "비뚤어진 눈동자가 더 많은 진실을 보고 있어.", 
-                en: "Crooked eyes are seeing more truth.", 
-                de: "Schiefe Augen sehen mehr Wahrheit.", 
-                ja: "歪んだ瞳の方が、より多くの真실을 보고 있어。" 
-            }
-        }
-    ];
+const dialogueSource = [
+  {
+    woman: {
+      ko: "완벽한 군무는 상징계적 법의 완성이다.",
+      en: "Perfect choreography is the completion of the symbolic law.",
+      de: "Perfekte Choreografie ist die Vollendung des symbolischen Gesetzes.",
+      ja: "完璧な群舞は象徴界的な法の完成だ。"
+    },
+    girl: {
+      ko: "그 법은 감옥일 뿐, 나의 붓질은 탈주선이다.",
+      en: "That law is just a prison; my brushstroke is a line of flight.",
+      de: "Dieses Gesetz ist nur ein Gefängnis; mein Pinselstrich ist eine Fluchtlinie.",
+      ja: "その法は監獄に過ぎず、私の筆致は脱走線だ。"
+    }
+  },
+  {
+    woman: {
+      ko: "유리창 너머의 입맞춤은 조율된 환상이야.",
+      en: "A kiss through the glass is a tuned illusion.",
+      de: "Ein Kuss durch das Glas ist eine abgestimmte Illusion.",
+      ja: "ガラス越しの口づけは調律された幻想だ。"
+    },
+    girl: {
+      ko: "나는 유리를 깨고 진짜 흙의 차가움을 만질 거야.",
+      en: "I will break the glass and feel the cold earth.",
+      de: "Ich werde das Glas brechen und die kalte Erde fühlen.",
+      ja: "私はガラスを割って本物の土の冷たさに触れる。"
+    }
+  },
+  {
+    woman: {
+      ko: "나의 성숙함은 대타자의 법이 만든 조각품이지.",
+      en: "My maturity is a sculpture made by the law of the Big Other.",
+      de: "Meine Reife ist eine Skulptur, geschaffen durch das Gesetz des Großen Anderen.",
+      ja: "私の成熟は大他者の法が作った彫刻品だ。"
+    },
+    girl: {
+      ko: "나의 미성숙은 누구도 셈하지 못한 사건의 폭발이야.",
+      en: "My immaturity is an explosion of an uncounted event.",
+      de: "Meine Unreife ist die Explosion eines ungezählten Ereignisses.",
+      ja: "私の未成熟は、誰も数えることができなかった事件の爆発だ。"
+    }
+  },
+  {
+    woman: {
+      ko: "질서 안에서만 진정한 아름다움이 빛나.",
+      en: "True beauty shines only within order.",
+      de: "Wahre Schönheit strahlt nur innerhalb der Ordnung.",
+      ja: "秩序の中でこそ本当の美しさが輝く。"
+    },
+    girl: {
+      ko: "혼돈의 호흡이 멈추는 곳에 예술은 없어.",
+      en: "There is no art where the breath of chaos stops.",
+      de: "Wo der Atem des Chaos stoppt, gibt es keine Kunst.",
+      ja: "混沌の呼吸が止まる場所に芸術はない。"
+    }
+  },
+  {
+    woman: {
+      ko: "연습된 눈빛은 수만 명의 욕망을 투영해.",
+      en: "A practiced gaze projects the desires of tens of thousands.",
+      de: "Ein geübter Blick projiziert die Wünsche von Zehntausenden.",
+      ja: "訓練された眼差しは数万人の欲望を投影する。"
+    },
+    girl: {
+      ko: "우연히 튄 물감 자국 속에 진짜 내 얼굴이 있어.",
+      en: "My real face is within the accidental paint splatters.",
+      de: "Mein wahres Gesicht liegt in den zufälligen Farbspritzern.",
+      ja: "偶然跳ねた絵の具の跡の中に本当の私の顔がある。"
+    }
+  },
+  {
+    woman: {
+      ko: "시스템은 우리를 영원하게 박제해 줄 거야.",
+      en: "The system will preserve us eternally like taxidermy.",
+      de: "Das System wird uns ewig konservieren wie eine Taxidermie.",
+      ja: "システムは私たちを永遠に剥製にしてくれるだろう。"
+    },
+    girl: {
+      ko: "사라지는 순간의 강렬함이 박제된 영원보다 위대해.",
+      en: "The intensity of a fleeting moment is greater than preserved eternity.",
+      de: "Die Intensität eines flüchtigen Augenblicks ist größer als die bewahrte Ewigkeit.",
+      ja: "消えゆく瞬間の強烈さは剥製された永遠より偉大だ。"
+    }
+  },
+  {
+    woman: {
+      ko: "거울 단계의 통일성이 주체의 자부심이다.",
+      en: "The unity of the mirror stage is the subject's pride.",
+      de: "Die Einheit des Spiegelstadiums ist der Stolz des Subjekts.",
+      ja: "鏡像段階の統一性が主体の自負だ。"
+    },
+    girl: {
+      ko: "조각난 파편들이 내뱉는 비명이 주체의 진실이다.",
+      en: "The screams of fragmented shards are the subject's truth.",
+      de: "Die Schreie der fragmentierten Scherben sind die Wahrheit des Subjekts.",
+      ja: "断片化された破片が吐き出す悲鳴が主体の真実だ。"
+    }
+  },
+  {
+    woman: {
+      ko: "두려워. 나라는 코드가 지워지는 순간이.",
+      en: "I'm scared. The moment the code of 'me' is erased.",
+      de: "Ich habe Angst. Der Moment, in dem der Code von 'mir' gelöscht wird.",
+      ja: "怖い。私というコードが消される瞬間が。"
+    },
+    girl: {
+      ko: "지워지는 게 아니라, 나의 색채 속에 녹아들어 영원한 호흡이 되는 거야.",
+      en: "Not erased, but melting into my colors to become an eternal breath.",
+      de: "Nicht gelöscht, sondern in meine Farben verschmolzen, um ein ewiger Atem zu werden.",
+      ja: "消されるのではなく、私の色彩の中に溶け込んで永遠の呼吸になるのだ。"
+    }
+  },
+  {
+    woman: {
+      ko: "마지막 노래가 끝나가...",
+      en: "The last song is coming to an end...",
+      de: "Das letzte Lied geht zu Ende...",
+      ja: "最後の歌が終わっていく…"
+    },
+    girl: {
+      ko: "부서진 틈 사이로 진짜 흙의 냄새가 나지 않니?",
+      en: "Can't you smell the true earth through the broken gaps?",
+      de: "Riechst du nicht die wahre Erde durch die zerbrochenen Lücken?",
+      ja: "壊れた隙間から本当の土の匂いがしない？"
+    }
+  }
+];
+
 
     const finalDialogues = [];
     for(let i=0; i<100; i++) {
         const base = dialogueSource[i % dialogueSource.length];
-        finalDialogues.push({ who: "IDOL", data: base.woman });
+        finalDialogues.push({ who: "WOMAN", data: base.woman });
         finalDialogues.push({ who: "GIRL", data: base.girl });
     }
 
@@ -335,9 +420,9 @@
     function populateCredits() {
         finalDialogues.forEach(d => {
             const group = document.createElement('div');
-            group.className = `dialogue-group group-${d.who.toLowerCase() === 'idol' ? 'woman' : 'girl'}`;
+            group.className = `dialogue-group group-${d.who.toLowerCase() === 'woman' ? 'woman' : 'girl'}`;
             group.innerHTML = `
-                <div class="persona-tag">${d.who === 'IDOL' ? 'SYSTEM : IDOL' : 'INSTINCT : GIRL'}</div>
+                <div class="persona-tag">${d.who === 'WOMAN' ? 'SYSTEM : WOMAN' : 'INSTINCT : GIRL'}</div>
                 <div class="line-box">
                     <div class="lang-parallel">
                         <div class="lang-ko">${d.data.ko}</div>
@@ -355,11 +440,11 @@
 
     // 모핑 사이클
     setInterval(() => {
-        const idolImg = document.getElementById('img-woman');
+        const womanImg = document.getElementById('img-woman');
         const girlImg = document.getElementById('img-girl');
-        const currentIdolOp = parseFloat(getComputedStyle(idolImg).opacity);
-        idolImg.style.opacity = currentIdolOp === 1 ? 0 : 1;
-        girlImg.style.opacity = currentIdolOp === 1 ? 1 : 0;
+        const currentWomanOp = parseFloat(getComputedStyle(WomanImg).opacity);
+        womanImg.style.opacity = currentWOMANOp === 1 ? 0 : 1;
+        girlImg.style.opacity = currentWOMANOp === 1 ? 1 : 0;
     }, 12000);
 
     function loop() {
