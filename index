@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Circular Arena</title>
+    <title>Circular Arena - Interactive Art</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -31,7 +31,7 @@
 
     <div id="ui-overlay">
         <h1 class="text-2xl font-bold mb-1 text-pink-500">CIRCULAR ARENA</h1>
-        <p class="text-xs tracking-widest text-gray-400 uppercase">>An Interactive Homage to Ayako Rokkaku</p>
+        <p class="text-xs tracking-widest text-gray-400 uppercase">Pure & Transparent Flow</p>
     </div>
 
     <canvas id="artCanvas"></canvas>
