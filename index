@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circular Arena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #fdfaf5; 
+            color: #333;
+            font-family: 'Pretendard', sans-serif;
+        }
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+        #ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-overlay">
+        <h1 class="text-2xl font-bold mb-1 text-pink-500">CIRCULAR ARENA</h1>
+        <p class="text-xs tracking-widest text-gray-400 uppercase">>An Interactive Homage to Ayako Rokkaku</p>
+    </div>
+
+    <canvas id="artCanvas"></canvas>
+
+    <script>
+        /**
+         * Circular Arena - Translucent & Bright Version
+         * 검은색 뭉침 현상을 제거하고 맑은 수채화 느낌의 질감 구현
+         */
+
+        const canvas = document.getElementById('artCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        let ripples = [];
+        let mouse = { x: -1000, y: -1000 };
+        
+        // 록카쿠의 맑은 원색과 파스텔을 조합한 투명한 팔레트
+        const palette = [
+            'rgba(89, 193, 115, 0.4)',  // Green
+            'rgba(255, 100, 150, 0.5)', // Pink
+            'rgba(255, 215, 0, 0.4)',   // Gold
+            'rgba(93, 159, 255, 0.4)',  // Blue
+            'rgba(255, 142, 83, 0.4)',  // Orange
+            'rgba(225, 190, 231, 0.4)', // Lavender
+            'rgba(197, 225, 165, 0.4)'  // Light Green
+        ];
+
+        const mainImage = new Image();
+        mainImage.src = 'image_f5fb34.jpg'; 
+
+        function init() {
+            resize();
+            createParticles();
+            animate();
+        }
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        class Particle {
+            constructor(isSplash = false) {
+                this.isSplash = isSplash;
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 15 + 8; // 크기를 키워 면적감 부여
+                this.deformX = 1 + (Math.random() - 0.5) * 0.6;
+                this.deformY = 1 + (Math.random() - 0.5) * 0.6;
+                this.color = palette[Math.floor(Math.random() * palette.length)];
+                this.vx = 0;
+                this.vy = 0;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.05;
+            }
+
+            update() {
+                const dx = width / 2 - this.x;
+                const dy = height / 2 - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                const mdx = mouse.x - this.x;
+                const mdy = mouse.y - this.y;
+                const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+                
+                if (mdist < 300) {
+                    const angle = Math.atan2(mdy, mdx);
+                    const force = (300 - mdist) / 300;
+                    this.vx -= Math.cos(angle) * force * 2;
+                    this.vy -= Math.sin(angle) * force * 2;
+                }
+
+                const rotateAngle = Math.atan2(dy, dx) + 0.015;
+                const targetX = width / 2 + Math.cos(rotateAngle) * dist;
+                const targetY = height / 2 + Math.sin(rotateAngle) * dist;
+
+                this.vx += (targetX - this.x) * 0.003;
+                this.vy += (targetY - this.y) * 0.003;
+
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                this.vx *= 0.93;
+                this.vy *= 0.93;
+                this.rotation += this.rotationSpeed;
+
+                ripples.forEach(r => {
+                    const rdx = r.x - this.x;
+                    const rdy = r.y - this.y;
+                    const rdist = Math.sqrt(rdx * rdx + rdy * rdy);
+                    if (Math.abs(rdist - r.radius) < 40) {
+                        const angle = Math.atan2(rdy, rdx);
+                        this.vx -= Math.cos(angle) * r.power;
+                        this.vy -= Math.sin(angle) * r.power;
+                    }
+                });
+
+                if (this.isSplash) {
+                    this.size *= 0.94;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                // 입자 가장자리를 부드럽게 그라데이션 처리하여 '검은 점' 느낌 제거
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size);
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(0.8, this.color);
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size * this.deformX, this.size * this.deformY, 0, 0, Math.PI * 2);
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        function createParticles() {
+            particles = [];
+            const count = Math.min((width * height) / 8000, 350); 
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function drawMainCircle() {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.clip();
+            
+            if (mainImage.complete && mainImage.naturalHeight !== 0) {
+                ctx.drawImage(mainImage, centerX - radius, centerY - radius, radius * 2, radius * 2);
+            } else {
+                // 이미지 로드 전에도 화사한 핑크 글로우 유지
+                ctx.fillStyle = 'rgba(255, 100, 150, 0.05)';
+                ctx.fill();
+            }
+            ctx.restore();
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius + 2, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 100, 150, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        function animate() {
+            // 배경을 매 프레임 깨끗하게 채워 잔상이 검게 변하는 것 방지
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = '#fdfaf5'; 
+            ctx.fillRect(0, 0, width, height);
+
+            drawMainCircle();
+
+            // 입자들이 겹쳐도 맑게 유지되도록 source-over 사용
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.isSplash && p.size < 0.5) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            for (let i = ripples.length - 1; i >= 0; i--) {
+                ripples[i].radius += 14;
+                ripples[i].life -= 0.02;
+                if (ripples[i].life <= 0) ripples.splice(i, 1);
+                else {
+                    ctx.beginPath();
+                    ctx.arc(ripples[i].x, ripples[i].y, ripples[i].radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(255, 100, 150, ${ripples[i].life * 0.5})`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playNote(freq) {
+            if (audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.5);
+        }
+
+        function handleInteraction(e) {
+            const x = e.clientX || (e.touches && e.touches[0].clientX);
+            const y = e.clientY || (e.touches && e.touches[0].clientY);
+            mouse.x = x;
+            mouse.y = y;
+        }
+
+        window.addEventListener('mousemove', handleInteraction);
+        window.addEventListener('mousedown', (e) => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            triggerRipple(e.clientX, e.clientY);
+        });
+        window.addEventListener('touchstart', (e) => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const touch = e.touches[0];
+            triggerRipple(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        function triggerRipple(x, y) {
+            ripples.push({ x, y, radius: 0, life: 1, power: 15 });
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            playNote(notes[Math.floor(Math.random() * notes.length)]);
+            
+            for(let i=0; i<15; i++) {
+                const p = new Particle(true);
+                p.x = x; p.y = y;
+                p.size = Math.random() * 15 + 10;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 12 + 6;
+                p.vx = Math.cos(angle) * speed;
+                p.vy = Math.sin(angle) * speed;
+                particles.push(p);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
